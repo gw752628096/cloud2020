@@ -10,3 +10,7 @@ eureka:
     service-url:
       #设置与eureka server交互的地址
       defaultZone: http://eureka7001.com:7001/eureka/
+
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 2000
