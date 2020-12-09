@@ -1,0 +1,6 @@
+访问地址 http://localhost:8001/payment/get/1
+访问地址 http://localhost:8001/payment/save?serial=4
+PaymentController要增加@RequestBody注解
+
+消费者访问地址 http://localhost/consumer/payment/get/1
+消费者访问地址 http://localhost/consumer/payment/save?serial=6
