@@ -29,14 +29,14 @@ public class PaymentController {
     public CommonResult<Integer> save(@RequestBody Payment payment) {
         int save = paymentService.save(payment);
         log.info("插入结果:{} serverPort:{}", save, serverPort);
-        return new CommonResult<>(save, save > 0 ? "插入成功" : "插入失败");
+        return new CommonResult<>(save, serverPort);
     }
 
     @GetMapping(value = "payment/get/{id}")
     public CommonResult<Payment> getPaymentById(@PathVariable("id") Long id) {
         Payment payment = paymentService.getPaymentById(id);
         log.info("查询结果:{} serverPort:{}", payment, serverPort);
-        return new CommonResult<>(0, "查询成功", payment);
+        return new CommonResult<>(0, serverPort, payment);
     }
 
     @GetMapping(value = "payment/discovery")
