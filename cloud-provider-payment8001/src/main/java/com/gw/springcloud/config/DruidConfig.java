@@ -1,100 +1,44 @@
 package com.gw.springcloud.config;
 
-import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
+import com.gw.springcloud.enums.DataSourceNames;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 @Slf4j
 public class DruidConfig {
-    @Value("${spring.datasource.url}")
-    private String dbUrl;
-
-    @Value("${spring.datasource.type}")
-    private String type;
-
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
-
-    @Value("${spring.datasource.driver-class-name}")
-    private String driverClassName;
-
-    @Value("${spring.datasource.druid.initial-size}")
-    private int initialSize;
-
-    @Value("${spring.datasource.druid.min-idle}")
-    private int minIdle;
-
-    @Value("${spring.datasource.druid.max-active}")
-    private int maxActive;
-
-    @Value("${spring.datasource.druid.max-wait}")
-    private int maxWait;
-
-    @Value("${spring.datasource.druid.time-between-eviction-runs-millis}")
-    private int timeBetweenEvictionRunsMillis;
-
-    @Value("${spring.datasource.druid.min-evictable-idle-time-millis}")
-    private int minEvictableIdleTimeMillis;
-
-    @Value("${spring.datasource.druid.validation-query}")
-    private String validationQuery;
-
-    @Value("${spring.datasource.druid.test-while-idle}")
-    private boolean testWhileIdle;
-
-    @Value("${spring.datasource.druid.test-on-borrow}")
-    private boolean testOnBorrow;
-
-    @Value("${spring.datasource.druid.test-on-return}")
-    private boolean testOnReturn;
-
-    @Value("${loginUsername}")
-    private String loginUsername;
-
-    @Value("${loginPassword}")
-    private String loginPassword;
-
-    @Value("${spring.datasource.druid.filters}")
-    private String filters;
 
     @Bean
-    public DataSource druidDataSource() {
-        DruidDataSource datasource = new DruidDataSource();
-        datasource.setUrl(dbUrl);
-        datasource.setUsername(username);
-        datasource.setPassword(password);
-        datasource.setDriverClassName(driverClassName);
-        datasource.setInitialSize(initialSize);
-        datasource.setMinIdle(minIdle);
-        datasource.setMaxActive(maxActive);
-        datasource.setMaxWait(maxWait);
-        datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-        datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-        datasource.setValidationQuery(validationQuery);
-        datasource.setTestWhileIdle(testWhileIdle);
-        datasource.setTestOnBorrow(testOnBorrow);
-        datasource.setTestOnReturn(testOnReturn);
-        try {
-            datasource.setFilters(filters);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return datasource;
+    @ConfigurationProperties("spring.datasource.druid.master")
+    public DataSource druidDataSourceMaster() {
+        return DruidDataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @ConfigurationProperties("spring.datasource.druid.slave")
+    public DataSource druidDataSourceSlave() {
+        return DruidDataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @Primary
+    public DynamicDataSource dataSource(DataSource druidDataSourceMaster, DataSource druidDataSourceSlave) {
+        Map<Object, Object> targetDataSources = new HashMap<>();
+        targetDataSources.put(DataSourceNames.MASTER, druidDataSourceMaster);
+        targetDataSources.put(DataSourceNames.SLAVE, druidDataSourceSlave);
+        return new DynamicDataSource(druidDataSourceSlave, targetDataSources);
     }
 
     /**
@@ -121,4 +65,15 @@ public class DruidConfig {
         bean.setInitParameters(initParams);
         return bean;
     }
+
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean() {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+        filterRegistrationBean.setFilter(new WebStatFilter());
+
+        filterRegistrationBean.addUrlPatterns("/*"); // 所有请求进行监控处理
+        filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.css,/druid/*");
+        return filterRegistrationBean;
+    }
+
 }
