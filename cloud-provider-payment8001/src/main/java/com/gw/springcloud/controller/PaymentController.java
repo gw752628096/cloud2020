@@ -1,6 +1,5 @@
 package com.gw.springcloud.controller;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import com.gw.springcloud.entities.CommonResult;
 import com.gw.springcloud.entities.Payment;
 import com.gw.springcloud.service.PaymentService;
@@ -8,17 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.List;
 
 @RestController
 @Slf4j
+@RefreshScope
 public class PaymentController {
 
     @Resource
@@ -27,27 +25,8 @@ public class PaymentController {
     @Resource
     private DiscoveryClient discoveryClient;
 
-    @Resource
-    private DruidDataSource druidDataSource;
-
     @Value("${server.port}")
     private String serverPort;
-
-
-    @GetMapping(value = "payment/getDruidDataSource")
-    public CommonResult<ResultSet> getPaymentById() {
-        log.info("数据源:{}", druidDataSource.getClass());
-
-        try (Connection connection = druidDataSource.getConnection()) {
-            log.info("连接:{}  连接地址:{}", connection, connection.getMetaData().getURL());
-
-            System.out.println("druidDataSource 数据源最大连接数：" + druidDataSource.getMaxActive());
-            System.out.println("druidDataSource 数据源初始化连接数：" + druidDataSource.getInitialSize());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new CommonResult<>(0, serverPort);
-    }
 
     @PostMapping(value = "payment/save")
     public CommonResult<Integer> save(@RequestBody Payment payment) {

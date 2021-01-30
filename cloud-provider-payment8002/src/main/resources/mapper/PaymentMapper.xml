@@ -7,7 +7,7 @@
         <id column="serial" property="serial" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <insert id="save" parameterType="Payment" useGeneratedKeys="true" keyProperty="id">
+    <insert id="save" parameterType="com.gw.springcloud.entities.Payment" useGeneratedKeys="true" keyProperty="id">
         insert into payment(serial) values(#{serial});
     </insert>
 

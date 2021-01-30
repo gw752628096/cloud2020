@@ -1,0 +1,11 @@
+server:
+  port: 8001
+spring:
+  application:
+    name: cloud-payment-service
+  cloud:
+    nacos:
+      config:
+        file-extension: yml
+        group: DEFAULT_GROUP
+        server-addr: 39.100.135.57:8848

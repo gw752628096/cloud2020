@@ -2,7 +2,6 @@ package com.gw.springcloud.config;
 
 import com.gw.springcloud.annotations.DataSource;
 import com.gw.springcloud.enums.DataSourceNames;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,7 +17,6 @@ import java.lang.reflect.Method;
  */
 @Aspect
 @Component
-@Slf4j
 public class DataSourceAspect implements Ordered {
     @Pointcut("@annotation(com.gw.springcloud.annotations.DataSource)")
     public void dataSourcePointCut() {

@@ -9,5 +9,6 @@ public interface PaymentService {
     @DataSource(name = DataSourceNames.MASTER)
     int save(Payment payment);
 
+    @DataSource(name = DataSourceNames.SLAVE)
     Payment getPaymentById(Long id);
 }

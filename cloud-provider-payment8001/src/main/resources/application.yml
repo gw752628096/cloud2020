@@ -1,22 +1,27 @@
-server:
-  port: 8001
 spring:
-  application:
-    name: cloud-payment-service
-
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       master:
-        url: jdbc:mysql://localhost:3306/cloud2020?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+        url: jdbc:mysql://${mysql.master.url}:${mysql.master.port}/mysql?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: root
-        password: 370303
+        username: ${mysql.master.loginName}
+        password: ${mysql.master.loginPassword}
       slave:
-        url: jdbc:mysql://localhost:3306/cloud2020?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+        url: jdbc:mysql://${mysql.slave.url}:${mysql.slave.port}/mysql?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
-        username: root
-        password: 370303
+        username: ${mysql.slave.loginName}
+        password: ${mysql.slave.loginPassword}
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
+      web-stat-filter:
+        # 添加过滤规则
+        url-pattern: /*
+        # 忽略过滤格式
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
       initial-size: 5
       min-idle: 5
       max-active: 20
@@ -24,7 +29,7 @@ spring:
       time-between-eviction-runs-millis: 60000 #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
       min-evictable-idle-time-millis: 300000 #配置一个连接在池中最小生存的时间，单位是毫秒
       validation-query: SELECT 1 #验证查询使用的语句
-      test-while-idle: true
+      test-while-idle: true #在获取连接的时候测试连接的有效性
       test-on-borrow: false
       test-on-return: false
       filters: stat,wall,slf4j
@@ -57,6 +62,3 @@ eureka:
     prefer-ip-address: true
     lease-renewal-interval-in-seconds: 1
     lease-expiration-duration-in-seconds: 2
-
-loginUsername: admin
-loginPassword: 123456
